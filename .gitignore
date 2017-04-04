@@ -1,0 +1,13 @@
+*.class
+
+# Intellij idea
+*.iml
+.idea/*
+
+# Package Files #
+target/*
+web/WEB-INF/classes/*
+*.war
+*.ear
+/.gradle/
+/build/
