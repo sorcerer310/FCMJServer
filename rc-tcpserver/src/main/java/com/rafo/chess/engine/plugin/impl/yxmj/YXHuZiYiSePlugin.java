@@ -60,15 +60,10 @@ public class YXHuZiYiSePlugin extends YXHuPlugin {
         //字一色包三家判断
         MJPlayer player = (MJPlayer) room.getPlayerById(pd.getToUid());
         //如果isZiYiSeChargeAll返回的输家不为0，并且胡牌为点炮，走包三家结算，否则走普通结算
-        int chargepid = this.isZiYiSeChargeAll(pd, room, player);
-        if (chargepid > 0 && !player.getHuAttachType().contains(YNMJGameType.HuAttachType.ZiMo)) {
-            pd.getFromUid()[0] = chargepid;
-            computeScoreYXChargeAll(pd, room, calculator);
-        } else if (chargepid > 0 && player.getHuAttachType().contains(YNMJGameType.HuAttachType.ZiMo)) {
-            //不使用自摸的三个输家，定义1个输家的数组，并将包三家的玩家的id加入
-            int[] fromuid = new int[1];
-            fromuid[0] = chargepid;
-            pd.setFromUid(fromuid);
+        boolean isZiMo = player.getHuAttachType().contains(YNMJGameType.HuAttachType.ZiMo);								//玩家是否自摸
+        int chargepid = this.isZiYiSeChargeAll(player,pd, isZiMo);
+        if (chargepid > 0 ) {
+            pd.setFromUid(new int[]{chargepid});
             computeScoreYXChargeAll(pd, room, calculator);
         } else {
             super.computeScoreYX(pd, room, calculator);

@@ -20,19 +20,25 @@ import java.util.ArrayList;
 public class YXHuQuanQiuRenPlugin extends YXHuPlugin {
     @Override
     public boolean checkHu(MJPlayer player, ArrayList<MJCard> handCards, ArrayList<CardGroup> groupList) {
-        //1:如果开门牌中有暗杠，不算全求人
+        //1:如果开门牌中有暗杠，不算全求人，如果吃牌了只能胡清一色
         for(CardGroup cg:groupList){
             if(cg.getGType()==YNMJGameType.PlayType.CealedKong)
                 return false;
+            if(cg.getCardsList().get(0).getCardNum() != cg.getCardsList().get(1).getCardNum() && !this.oneCorlor(handCards,groupList)) {
+                return false;
+            }
         }
 
-        //1:如果手牌不为2张，返回false
+        //3:如果手牌不为2张，返回false
         if(handCards.size()!=2)
             return false;
-        //2:判断和牌是否为别人打出
+
+        //4:判断和牌是否为别人打出
         ArrayList<IEPlayerAction> lAction = RoomManager.getRoomInstnaceByRoomid(player.getRoomId()).getEngine().getMediator().getDoneActionList();
         IEPlayerAction iepa = lAction.get(lAction.size()-1);
-        //别人打出的牌与handCards的牌不一致不和
+
+
+        //5:别人打出的牌与handCards的牌不一致不和
         if(iepa.getCard()!=handCards.get(handCards.size()-1).getCardNum()
                 //动作执行者为自己不和
                 || iepa.getPlayerUid()==player.getUid()
@@ -63,15 +69,16 @@ public class YXHuQuanQiuRenPlugin extends YXHuPlugin {
         MJPlayer player = (MJPlayer) room.getPlayerById(pd.getToUid());
 
         //判断是否清一色也达成包三家条件，如果达成，清一色的掏钱，全求人不掏钱
-        int chargeid = isQingYiSeChargeAll(player,pd);
+        boolean isZiMo = player.getHuAttachType().contains(YNMJGameType.HuAttachType.ZiMo);
+        int chargeid = isQingYiSeChargeAll(player,pd,isZiMo);
         if(chargeid>0)
-            pd.getFromUid()[0] = chargeid;
+            pd.setFromUid(new int[]{chargeid});
 
         //全求人包三家判断
         //全求人的包三家，设置状态数据在YXChiPlugin、YXPengPlugin、YXMoPlugin中设置。杠的判断也在YXMoPlugin中设置
         //如果赢家player对象的isQuanQiuRenChargeAll==true，则全求人包庄
         if(player.isQuanQiuRenChargeAll() || chargeid>0){
-            //现在不需要结算多个包三家了，只结算一个包三家。
+            //只结算一个包三家。
             computeScoreYXChargeAll(pd, room, calculator);
         }else{
             super.computeScoreYX(pd,room,calculator);

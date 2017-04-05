@@ -160,10 +160,10 @@ public class YNMJGameType {
 
         static{
             huZiMoAttachScore.put(MenQianQing,10);                                                                      //门清
-            huZiMoAttachScore.put(QiDui,30);                                                                            //七对
+            huZiMoAttachScore.put(QiDui,20);                                                                            //七对
             huZiMoAttachScore.put(YiTiaoLong,20);                                                                       //一条龙
-            huZiMoAttachScore.put(QiXingDianDeng,30);                                                                   //七星点灯
-            huZiMoAttachScore.put(QiXingZaiShou,20);                                                                    //七星在手
+            huZiMoAttachScore.put(QiXingDianDeng,20);                                                                   //七星点灯
+            huZiMoAttachScore.put(QiXingZaiShou,10);                                                                    //七星在手
             huZiMoAttachScore.put(QingYiSe,30);                                                                         //清一色
             huZiMoAttachScore.put(GangShangKaiHua,10);                                                                  //杠上开花
             huZiMoAttachScore.put(QiangGang,10);                                                                        //抢杠和

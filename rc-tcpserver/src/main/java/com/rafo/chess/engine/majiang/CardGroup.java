@@ -37,7 +37,7 @@ public class CardGroup {
 		StringBuilder sb = new StringBuilder();
 		sb.append("CardGroupList[");
 		for(int i=0;i<list.size();i++)
-			sb.append(list.get(i).getCardNum());
+			sb.append(list.get(i).getCardNum()).append(",");
 		sb.append("]-targetId:").append(targetId).append(" ");
 
 		return sb.toString();
