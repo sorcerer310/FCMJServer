@@ -17,6 +17,11 @@ import java.util.Map;
 
 /***
  * 清一色要求和别的和法同用
+ * 清一色包三家规则:
+ * 1: 赢家至少3个开门,且有同一玩家至少供3个开门 		自摸:供了3个开门的玩家包三家	点炮:供了3个开门的玩家包三家
+ * 2: 赢家4个开门,且没有同一玩家至少供3个开门			自摸:供第2个开门的玩家包三家	点炮:供了第4个开门的玩家包三家
+ * 3: 赢家3个开门,且没有同一玩家至少供3个开门			自摸:与普通自摸一样结算			点炮:由点炮的玩家包三家
+ * 4: 赢家3个以下开门								自摸:与普通自摸一样结算			点炮:与普通点炮一样结算
  * @author fc
  */
 public class YXHuQingYiSePlugin extends YXHuPlugin {
@@ -33,7 +38,7 @@ public class YXHuQingYiSePlugin extends YXHuPlugin {
 
 		player.getHuAttachType().clear();
 
-		//永修规则，门前清一定要自摸
+		//门前清一定要自摸
 		if(this.isMenQianQing(handCards,groupList,player)) {
 			player.getHuAttachType().add(YNMJGameType.HuAttachType.MenQianQing);
 			player.getHuAttachType().add(YNMJGameType.HuAttachType.ZiMo);
@@ -52,6 +57,10 @@ public class YXHuQingYiSePlugin extends YXHuPlugin {
 		//对对胡
 		if(this.isDuiDuiHu(handCards,groupList))
 			player.getHuAttachType().add(YNMJGameType.HuAttachType.DuiDuiHu);
+
+		//一条龙
+		if(this.isYiTiaoLong(handCards,groupList))
+			player.getHuAttachType().add(YNMJGameType.HuAttachType.YiTiaoLong);
 
 		return true;
 	}
@@ -73,10 +82,9 @@ public class YXHuQingYiSePlugin extends YXHuPlugin {
 			pd.setFromUid(new int[]{chargepid});
 			computeScoreYXChargeAll(pd,room,calculator);
 		} else{
-			super.computeScoreYX(pd,room,calculator);
+			//此处要执行父类的doPayDetail，因为该函数中包括对抢杠包三家的判断
+			super.doPayDetail(pd,room,calculator);
 		}
 		return false;
 	}
-
-
 }

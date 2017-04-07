@@ -5,15 +5,12 @@ import java.util.*;
 import com.rafo.chess.engine.action.IEPlayerAction;
 import com.rafo.chess.engine.action.exception.ActionRuntimeException;
 import com.rafo.chess.engine.calculate.PayDetailed;
-import com.rafo.chess.engine.game.YNMJGameType;
 import com.rafo.chess.engine.gameModel.IPlayer;
 import com.rafo.chess.engine.majiang.CardGroup;
 import com.rafo.chess.engine.majiang.MJCard;
 import com.rafo.chess.engine.majiang.MJPlayer;
 import com.rafo.chess.engine.majiang.action.ActionManager;
 import com.rafo.chess.engine.majiang.action.GangAction;
-import com.rafo.chess.engine.majiang.action.HuAction;
-import com.rafo.chess.engine.majiang.action.IEMajongAction;
 import com.rafo.chess.engine.room.RoomInstance;
 import com.rafo.chess.engine.room.RoomManager;
 
@@ -89,7 +86,7 @@ public abstract class BuGangPlugin extends GangPlugin{
 
 			// 设置抢杠平胡标志为true，杠玩家摸牌数量为0，
 			// 当摸牌数量为1时设置flag为false，结束抢杠平胡状态
-			player.setQiangGangPingHuFlag(true);
+			player.setQiangGangFlag(true);
 
 			for (IPlayer other : list) {
 				if (other.getUid() == action.getPlayerUid())

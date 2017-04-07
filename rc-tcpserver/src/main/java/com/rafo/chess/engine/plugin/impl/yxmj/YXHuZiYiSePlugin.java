@@ -66,7 +66,9 @@ public class YXHuZiYiSePlugin extends YXHuPlugin {
             pd.setFromUid(new int[]{chargepid});
             computeScoreYXChargeAll(pd, room, calculator);
         } else {
-            super.computeScoreYX(pd, room, calculator);
+            //此处要执行父类的doPayDetail，因为该函数中包括对抢杠包三家的判断
+            super.doPayDetail(pd,room,calculator);
+//            super.computeScoreYX(pd, room, calculator);
         }
 
         return false;

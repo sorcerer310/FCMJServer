@@ -31,14 +31,27 @@ public class YXHuQiDuiPlugin extends YXHuPlugin {
 		}
 
 		player.getHuAttachType().clear();
-
+		//清一色
 		if(this.oneCorlor(handCards,groupList))
 			player.getHuAttachType().add(YNMJGameType.HuAttachType.QingYiSe);
+		//门前清
 
-		if(this.isMenQianQing(handCards,groupList,player)) {
+
+		if(this.isQiDuiMenQianQing(handCards,groupList,player)) {
 			player.getHuAttachType().add(YNMJGameType.HuAttachType.MenQianQing);
 			player.getHuAttachType().add(YNMJGameType.HuAttachType.ZiMo);
 		}
+		return true;
+	}
+
+	public boolean isQiDuiMenQianQing(ArrayList<MJCard> handCards, ArrayList<CardGroup> groupList, MJPlayer player) {
+		//如果不是自摸，不算门前清
+		if (!isZiMo(handCards, player))
+			return false;
+		//开门不算门前清
+		if (player.isOpen())
+			return false;
+
 		return true;
 	}
 }

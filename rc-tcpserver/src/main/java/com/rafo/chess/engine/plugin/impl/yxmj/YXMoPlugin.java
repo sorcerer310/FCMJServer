@@ -35,7 +35,7 @@ public class YXMoPlugin extends MoPlugin {
         MJPlayer player =(MJPlayer) action.getRoomInstance().getPlayerById(action.getPlayerUid());
         IEPlayerAction last = action.getRoomInstance().getEngine().getMediator().getDoneActionByStep(action.getStep() - 1);
 
-        //-----------永修全求人接触状态-------------
+        //-----------永修全求人解除状态-------------
         //此状态与chi、peng、gang互相配合改变状态
         //由于全求人包三家只有一轮奏效，所以在下次摸牌的时候重置全求人包三家状态
         //再之后该玩家不能吃、碰、杠，所以isQuanQiuRenChargeAll状态再不能被置为true
@@ -58,8 +58,8 @@ public class YXMoPlugin extends MoPlugin {
 
         //-----------永修抢杠小胡-------------
         //杠后该玩家摸两次牌以后才重置抢杠小胡标志
-        if(player.isQiangGangPingHuFlag())
-                player.setQiangGangPingHuFlag(false);
+        if(player.isQiangGangFlag())
+                player.setQiangGangFlag(false);
         //-----------永修抢杠小胡-------------
 
         //-----------永修杠上开花小胡-------------

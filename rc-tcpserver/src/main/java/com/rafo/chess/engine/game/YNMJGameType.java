@@ -165,8 +165,8 @@ public class YNMJGameType {
             huZiMoAttachScore.put(QiXingDianDeng,20);                                                                   //七星点灯
             huZiMoAttachScore.put(QiXingZaiShou,10);                                                                    //七星在手
             huZiMoAttachScore.put(QingYiSe,30);                                                                         //清一色
-            huZiMoAttachScore.put(GangShangKaiHua,10);                                                                  //杠上开花
-            huZiMoAttachScore.put(QiangGang,10);                                                                        //抢杠和
+            huZiMoAttachScore.put(GangShangKaiHua,20);                                                                  //杠上开花
+            huZiMoAttachScore.put(QiangGang,20);                                                                        //抢杠和
             huZiMoAttachScore.put(DuiDuiHu,10);                                                                         //对对和
             huZiMoAttachScore.put(QuanQiuRen,0);                                                                        //全求人
             huZiMoAttachScore.put(ZiYiSe,50);                                                                           //字一色
@@ -183,8 +183,8 @@ public class YNMJGameType {
             huDianPaoAttachScore.put(QiXingDianDeng,20);                                                                //七星点灯
             huDianPaoAttachScore.put(QiXingZaiShou,20);                                                                 //七星在手
             huDianPaoAttachScore.put(QingYiSe,30);                                                                      //清一色
-            huDianPaoAttachScore.put(GangShangKaiHua,10);                                                               //杠上开花
-            huDianPaoAttachScore.put(QiangGang,10);                                                                     //抢杠和
+            huDianPaoAttachScore.put(GangShangKaiHua,20);                                                               //杠上开花
+            huDianPaoAttachScore.put(QiangGang,20);                                                                     //抢杠和
             huDianPaoAttachScore.put(DuiDuiHu,10);                                                                      //对对和
             huDianPaoAttachScore.put(QuanQiuRen,20);                                                                    //全求人
             huDianPaoAttachScore.put(ZiYiSe,50);                                                                        //字一色

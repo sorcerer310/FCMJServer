@@ -32,7 +32,7 @@ public class MoPlugin extends AbstractPlayerPlugin<MoAction> implements IPluginC
 			// 杠
 			ActionManager.gangCheck(player, action);
 			//测试代码
-			if((player.getHandCards().getHandCards().size())>14 && ((MJCard)player.getHandCards().getHandCards().get(13)).getCardNum()==44)
+			if((player.getHandCards().getHandCards().size())>14 && ((MJCard)player.getHandCards().getHandCards().get(13)).getCardNum()==39)
 				System.out.println("foo");
 
 			// 胡
@@ -58,7 +58,13 @@ public class MoPlugin extends AbstractPlayerPlugin<MoAction> implements IPluginC
 		card.setUid(p.getUid());
 		action.setCard(card.getCardNum());
 		p.getHandCards().getHandCards().add(card);
-		p.setPassNohu(false);
+		//重置同一圈不能胡第二张的标记为false
+		p.getPassNohu().noPass = false;
+		p.getPassNohu().cardNum = 0;
+		//重置同一圈不能胡第二张的标记为false
+		p.getPassNopeng().noPass = false;
+		p.getPassNopeng().cardNum = 0;
+
 		createCanExecuteAction(action);
 
 		ActionManager.checkQueCardStatus(p.getUid(), room);

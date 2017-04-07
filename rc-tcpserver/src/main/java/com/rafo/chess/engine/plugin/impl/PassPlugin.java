@@ -25,9 +25,15 @@ public class PassPlugin extends AbstractPlayerPlugin<PassAction> implements IPlu
 		LinkedList<BaseMajongPlayerAction> list = action.getRoomInstance().getLastCanExecuteActionList();
 		//获得所有可执行的动作
 		for (BaseMajongPlayerAction act : list) {
-			//如果动作类型为和，设置不和
+			//如果动作类型为和，设置当圈不和的标记，饼记录下当圈未胡的牌
 			if (act.getActionType() == IEMajongAction.PLAYER_ACTION_TYPE_CARD_HU) {
-				player.setPassNohu(true);
+				player.getPassNohu().noPass = true;
+				player.getPassNohu().cardNum = act.getCard();
+			}
+			//如果动作类型为碰，设置当圈不碰的标记，并记录下当圈未碰的牌
+			else if(act.getActionType() == IEMajongAction.PLAYER_ACTION_TYPE_CARD_PENG){
+				player.getPassNopeng().noPass = true;
+				player.getPassNopeng().cardNum = act.getCard();
 			}
 			//听暂未使用
 			else if(act.getActionType() == IEMajongAction.PLAYER_ACTION_TYPE_CARD_TING){

@@ -23,7 +23,9 @@ public class MJPlayer implements IPlayer, Cloneable {
 	/** 是否听 */
 	private boolean isTing = false;
 	private boolean offline;
-	private boolean isPassNohu = false;
+//	private boolean passNohu = false;																					//同一圈不能胡
+	private NoPass passNohu = new NoPass();
+	private NoPass passNopeng = new NoPass();
 	private String ip;
 	private int seatNo;
 	private int sex;
@@ -43,12 +45,12 @@ public class MJPlayer implements IPlayer, Cloneable {
 	public void setQuanQiuRenChargeAll(boolean quanQiuRenChargeAll) {this.quanQiuRenChargeAll = quanQiuRenChargeAll;}
 
 	/**
-	 * 保存抢杠小胡状态
-	 * flag			记录当前是否可以抢杠小胡
+	 * 保存抢杠状态
+	 * flag			记录当前是否可以抢杠
 	 */
-	private boolean qiangGangPingHuFlag = false;
-	public boolean isQiangGangPingHuFlag() {return qiangGangPingHuFlag;}
-	public void setQiangGangPingHuFlag(boolean qiangGangPingHuFlag) {this.qiangGangPingHuFlag = qiangGangPingHuFlag;}
+	private boolean qiangGangFlag = false;
+	public boolean isQiangGangFlag() {return qiangGangFlag;}
+	public void setQiangGangFlag(boolean qiangGangFlag) {this.qiangGangFlag = qiangGangFlag;}
 
 	/**
 	 * 保存杠上开花状态
@@ -73,18 +75,28 @@ public class MJPlayer implements IPlayer, Cloneable {
 		state= PlayState.Battle;
 		isKouTing = false;
 		isTing = false;
-		isPassNohu = false;
+//		passNohu = false;
+		passNohu.cardNum = 0;
+		passNohu.noPass = false;
+		passNopeng.cardNum = 0;
+		passNopeng.noPass = false;
 		banker = false;
 		isOpen = false;
 	}
-	
-	public boolean isPassNohu() {
-		return isPassNohu;
+
+	/**
+	 * 获得同一圈不能胡第二张牌的操作对象
+	 * @return
+	 */
+	public NoPass getPassNohu() {
+		return passNohu;
 	}
 
-	public void setPassNohu(boolean isPassNohu) {
-		this.isPassNohu = isPassNohu;
-	}
+	/**
+	 * 获得同一圈不能碰第二张牌的操作对象
+	 * @return
+	 */
+	public NoPass getPassNopeng(){return passNopeng;}
 
 	public MJPlayer() {
 		container = new MJHandCardsContainer();
@@ -270,8 +282,6 @@ public class MJPlayer implements IPlayer, Cloneable {
 
 	@Override
 	public MJPlayer clone() throws CloneNotSupportedException {
-
-		
 		return (MJPlayer) super.clone();
 	}
 	
@@ -286,6 +296,5 @@ public class MJPlayer implements IPlayer, Cloneable {
 		bIsLookMa = true;
 	}
 
-
-
 }
+

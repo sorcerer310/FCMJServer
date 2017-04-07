@@ -3,6 +3,8 @@ package com.rafo.chess.engine.plugin.impl;
 import java.util.*;
 
 import com.rafo.chess.engine.game.YNMJGameType;
+import com.rafo.chess.engine.majiang.NoPass;
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,11 +54,15 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
      */
     public boolean checkExecute(Object... objects) {
         MJPlayer player = (MJPlayer) objects[0];
-        //屏蔽掉，同一圈可以和第二张牌
-//        if (player.isPassNohu())
-//            return false;
         ArrayList<MJCard> handCards = (ArrayList<MJCard>) objects[1];
         ArrayList<CardGroup> groupList = (ArrayList<CardGroup>) objects[2];
+        int lastCard = handCards.get(handCards.size() - 1).getCardNum();
+
+        //同一圈不能和第二张牌
+        if (player.getPassNohu().noPass && player.getPassNohu().cardNum == lastCard)
+            return false;
+
+
         return checkHu(player, handCards, groupList);
     }
 
@@ -223,14 +229,14 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
      * @param player
      * @return
      */
-    public boolean isQuanQiuRen(ArrayList<MJCard> handCards,ArrayList<CardGroup> groupList, MJPlayer player) {
+    public boolean isQuanQiuRen(ArrayList<MJCard> handCards, ArrayList<CardGroup> groupList, MJPlayer player) {
         //1:如果手牌不为2张，返回false
         if (handCards.size() != 2)
             return false;
 
         //2:如果手里有暗杠，不算全求人
-        for(CardGroup cg:groupList)
-            if(cg.getGType()== YNMJGameType.PlayType.CealedKong)
+        for (CardGroup cg : groupList)
+            if (cg.getGType() == YNMJGameType.PlayType.CealedKong)
                 return false;
 
         //3:判断和牌是否为别人打出
@@ -248,6 +254,7 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
 
     /**
      * 判断是否为对对和
+     *
      * @param handCards 手牌
      * @param groupList 开门牌
      * @return 返回判断是否为对对和
@@ -277,6 +284,7 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
 
     /**
      * 判断是否为自摸
+     *
      * @param handCards 手牌
      * @param player    玩家对象
      * @return 返回判断是否为自摸
@@ -290,34 +298,101 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
     /**
      * 永修规则，必须自摸算门清，点炮不算门清
      * 门清只能自摸、和夹心或单钓
+     *
      * @return
      */
     public boolean isMenQianQing(ArrayList<MJCard> handCards, ArrayList<CardGroup> groupList, MJPlayer player) {
         //如果不是自摸，不算门前清
-        if (!isZiMo(handCards, player))
+        if (!isZiMo(handCards, player)) return false;
+        if (player.isOpen()) return false;
+        if (!isHu(this.list2intArray(handCards)) || !this.isjia) return false;
+        return true;
+    }
+
+    /**
+     * 判断牌型是否为一条龙
+     * @param handCards 手牌
+     * @param groupList 开门的牌
+     * @return          返回牌型是否符合一条龙
+     */
+    public boolean isYiTiaoLong(ArrayList<MJCard> handCards,ArrayList<CardGroup> groupList){
+        //1:判断开门的牌如果有顺子必须为清一色，否则返回失败
+        for (CardGroup cg : groupList) {
+            ArrayList<MJCard> amjc = cg.getCardsList();
+            if (amjc.get(0).getCardNum() != amjc.get(1).getCardNum() && !this.oneCorlor(handCards, groupList))
+                return false;
+        }
+
+        //2:判断是否包含一条龙的牌
+        ArrayList<MJCard> lLong = null;                                                                                 //保存一条龙的集合
+        HashMap<MJCard.MJCardType, ArrayList<MJCard>> hmCard = splitHandCards(handCards);
+        Iterator<MJCard.MJCardType> itCardKey = hmCard.keySet().iterator();
+        while (itCardKey.hasNext()) {
+            MJCard.MJCardType mjct = itCardKey.next();
+            if (hmCard.get(mjct).size() >= 9) {
+                lLong = hmCard.remove(mjct);
+                break;
+            }
+        }
+        if (lLong == null) return false;
+
+        //3:判断龙牌集合中是否有一条龙,从龙牌集合中依次一处从1到9的牌，如果缺哪一张牌，说明不成为一条龙
+        ArrayList<Integer> save_long = new ArrayList<>();
+        for (int i = 1; i <= 9; i++) {
+            boolean removeflag = false;
+            Iterator<MJCard> itmjc = lLong.iterator();
+            while (itmjc.hasNext()) {
+                MJCard mjc = itmjc.next();
+                if (mjc.getCardNum() % 10 == i) {
+                    lLong.remove(mjc);
+                    save_long.add(mjc.getCardNum());
+                    removeflag = true;
+                    break;
+                }
+            }
+            if (!removeflag) return false;
+        }
+
+        //4:判断胡牌是否为2、3、5、7、8，如果是这几张牌，那么可以判断当前胡夹
+        int lastCard = handCards.get(handCards.size() - 1).getCardNum();
+        boolean ytljia = false;                                                                                         //表示当前一条龙胡的是否为夹
+        if (lastCard % 10 == 2 || lastCard % 10 == 3 || lastCard % 10 == 5 || lastCard % 10 == 7 || lastCard % 10 == 8)
+            ytljia = true;
+
+        //5:判断龙牌集合剩下的牌型如果为3N+2，则为和牌，和是否为夹，此处还可以补充判断是否为边或单钓
+        int[] remainCards = new int[0];                                                                                 //除了龙的剩余牌
+        Iterator<ArrayList<MJCard>> itRemainCard = hmCard.values().iterator();
+        while (itRemainCard.hasNext()) {
+            ArrayList<MJCard> almjc = itRemainCard.next();
+            for (MJCard mjc : almjc)
+                remainCards = ArrayUtils.add(remainCards, mjc.getCardNum());
+        }
+
+        for (MJCard mjc : lLong)
+            remainCards = ArrayUtils.add(remainCards, mjc.getCardNum());
+        boolean huflag = isHu(remainCards,lastCard);
+        if (!huflag)
             return false;
-        //开门了不算门清
-//        if (isOpen(groupList))
-//            return false;
-        if(player.isOpen())
-            return false;
-        if (!isHu(this.list2intArray(handCards)) || !this.isjia)
-            return false;
+        else if (huflag && this.isjia)
+            ytljia = true;
+
+        //6:判断是【青龙在手】还是【青龙点睛】,如果是【青龙在手】必须胡夹或者单吊
+        //【青龙在手】的特点是最后一张牌不为一条龙中的牌
+
+        //如果最后一张牌在龙牌容器中，需要将该牌从龙牌容器中去掉,这样剩下的才是手牌中的龙牌组合
+        if (save_long.contains(lastCard)) save_long.remove(new Integer(lastCard));
+        //如果龙牌9张在手，并且不是夹不让胡（龙在手，非夹不让胡）
+        if (save_long.size() == 9)
+            if(!ytljia)
+                return false;
 
         return true;
     }
 
     /**
-     * 判断是否开门
-     * @return 开门返回true，闭门返回false
-     */
-//    public boolean isOpen(ArrayList<CardGroup> openList) {
-//        return openList.size() != 0 ? true : false;
-//    }
-
-    /**
      * 判断三张牌是否间隔为2以上的牌
      * 至少为[1、4、7]，[2、5、8]，[3、6、9]
+     *
      * @return
      */
     public boolean isIntervalCard(List<MJCard> cards) {
@@ -337,7 +412,7 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
         else if (sortCardValue.length == 3
                 && (sortCardValue[0] + 2 < (sortCardValue[1]) && sortCardValue[1] + 2 < (sortCardValue[2])))
             return true;
-        else if (sortCardValue.length == 1 )
+        else if (sortCardValue.length == 1)
             return true;
         else
             return false;
@@ -345,6 +420,7 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
 
     /**
      * 所有手牌计数,记录每种手牌的数量
+     *
      * @param cardsTemp
      * @return
      */
@@ -399,12 +475,21 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
     public boolean isjia = false;                                           //是否为特殊和法，全部成为夹和
 
     /**
-     * 判断是否为和牌
-     *
+     * 判断是否为和牌,默认胡牌为数组的最后一张牌
      * @param cardsTemp
      * @return
      */
     public boolean isHu(int[] cardsTemp) {
+        return isHu(cardsTemp,cardsTemp[cardsTemp.length-1]);
+    }
+
+    /**
+     * 判定当前牌型是否符合3N+2可以胡的牌型，同时制定最后胡的一张牌的值
+     * @param cardsTemp 要判定的牌数组
+     * @param lastcard  最后要胡的一张牌
+     * @return          返回是否胡
+     */
+    public boolean isHu(int[] cardsTemp,int lastcard) {
         boolean res = false;
         if (cardsTemp == null || cardsTemp.length == 0) {
             return res;
@@ -414,9 +499,9 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
             return res;
         }
 
-        boolean ishu = false;                                            //是否可以和
+        boolean ishu = false;                                               //是否可以和
 
-        lastcard = cardsTemp[cardsTemp.length - 1];                        //最后一张
+//        lastcard = cardsTemp[cardsTemp.length - 1];                        //最后一张
         HashMap<Integer, Integer> map = arrayHandsCardCount(cardsTemp);
         for (Integer cNum : map.keySet()) {
             mid = false;
@@ -540,8 +625,8 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
      */
     public int collectKeZiGangFromFeng(ArrayList<MJCard> hmjc, ArrayList<CardGroup> omjc, IPlayer p) {
 
-        logger.debug("Huplugin.collectKeZiGangFromFeng:{player:"+p.getUid()+",playerIndex:"+p.getIndex()
-                +",handCards:"+hmjc.toString()+",cardGroups:"+omjc.toString());
+        logger.debug("Huplugin.collectKeZiGangFromFeng:{player:" + p.getUid() + ",playerIndex:" + p.getIndex()
+                + ",handCards:" + hmjc.toString() + ",cardGroups:" + omjc.toString());
 
         //如果是字一色，牌型不为N*3+2,不计算本风数量
         if (!this.isHu(this.list2intArray(hmjc)))

@@ -67,7 +67,7 @@ public abstract class MingGangPlugin extends GangPlugin{
 			//测试代码，向牌库中增加指定的牌，为杠完下一张摸的牌
 //			ArrayList<MJCard> cardPool = action.getRoomInstance().getEngine().getCardPool();
 //			MJCard c = new MJCard();
-//			c.setCardNum(26);
+//			c.setCardNum(19);
 //			c.setUid(0);
 //			c.setStatus(0);
 //			cardPool.add(0,c);

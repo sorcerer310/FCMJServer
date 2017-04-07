@@ -3,6 +3,7 @@ package com.rafo.hall.handlers;
 import com.bbzhu.cache.Cache;
 import com.bbzhu.system.HttpCenter;
 import com.rafo.chess.gm.GMUtils;
+import com.rafo.chess.gm.service.InviteService;
 import com.rafo.hall.common.GlobalConstants;
 import com.rafo.hall.core.HallExtension;
 import com.rafo.chess.common.db.RedisManager;
@@ -84,6 +85,14 @@ public class LoginHandler extends BaseServerEventHandler {
 
         respObj.putInt("result" , GlobalConstants.LOGIN_SUCCESS);
         send(CmdsUtils.CMD_Update , respObj , user);
+
+        ISFSObject data=new SFSObject();
+        RedisManager.getInstance().hSet("uid."+uid, "card", ""+ InviteService.getCardNum(Integer.valueOf(user.getName())));
+        String card = RedisManager.getInstance().hGet("uid." + uid, "card");
+//		data.putInt("roomCard", InviteService.getCardNum(Integer.valueOf(user.getName())));
+        data.putInt("roomCard", Integer.valueOf(card));
+        send("SFS_EVENT_ACCOUNT_MODIFY", data, user);
+
         logger.debug("login\t" + uid + "\t"  + user.getId() + "\t" + user.getIpAddress() + "\t" + currentChannel
                 + "\t"+currentVersion + "\t" + (System.currentTimeMillis()- begin));
 

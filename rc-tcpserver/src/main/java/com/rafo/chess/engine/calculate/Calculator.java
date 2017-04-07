@@ -199,9 +199,7 @@ public class Calculator {
             e.printStackTrace();
             logger.debug("Calculator.calculatePay:"+e.toString());
             logger.error("Calculator.calculatePay:",e);
-
         }
-
     }
 
     public void addCardBalance(int uid, int fromuid, int type, int score, PayDetailed pd) {

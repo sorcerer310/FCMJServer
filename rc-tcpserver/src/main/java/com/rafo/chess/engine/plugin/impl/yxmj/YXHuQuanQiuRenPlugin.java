@@ -77,11 +77,12 @@ public class YXHuQuanQiuRenPlugin extends YXHuPlugin {
         //全求人包三家判断
         //全求人的包三家，设置状态数据在YXChiPlugin、YXPengPlugin、YXMoPlugin中设置。杠的判断也在YXMoPlugin中设置
         //如果赢家player对象的isQuanQiuRenChargeAll==true，则全求人包庄
-        if(player.isQuanQiuRenChargeAll() || chargeid>0){
+        if(player.isQuanQiuRenChargeAll() || chargeid>0 ){
             //只结算一个包三家。
             computeScoreYXChargeAll(pd, room, calculator);
         }else{
-            super.computeScoreYX(pd,room,calculator);
+            //此处要执行父类的doPayDetail，因为该函数中包括对抢杠包三家的判断
+            super.doPayDetail(pd,room,calculator);
         }
         return false;
     }

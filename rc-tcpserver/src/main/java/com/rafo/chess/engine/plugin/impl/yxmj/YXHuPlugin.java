@@ -111,7 +111,6 @@ public abstract class YXHuPlugin extends HuPlugin {
         else
             flag = computeScoreYX(pd, room, calculator);
 
-//        boolean flag = computeScoreOld(pd, room, calculator);
         return flag;
     }
 
@@ -642,10 +641,10 @@ public abstract class YXHuPlugin extends HuPlugin {
     //--------------一些判断函数-------------------
 
     /**
-     * 判断是否清一色包三家。如果
-     *
-     * @param player
-     * @param pd
+     * 判断是否为清一色包三家，如果返回输家id大于0，为包三家，输家id等于0不包三家
+     * @param player    赢家player对象
+     * @param pd        支付细节
+     * @param isZiMo    是否自摸
      * @return
      */
     protected int isQingYiSeChargeAll(MJPlayer player, PayDetailed pd,boolean isZiMo) {
@@ -680,27 +679,34 @@ public abstract class YXHuPlugin extends HuPlugin {
     }
 
     /**
-     * 确定输家，如果包三家，输家为供三口吃的家
-     *
+     ** 清一色包三家规则:
+     * 1: 赢家至少3个开门,且有同一玩家至少供3个开门 		自摸:供了3个开门的玩家包三家	点炮:供了3个开门的玩家包三家
+     * 2: 赢家4个开门,且没有同一玩家至少供3个开门			自摸:供第2个开门的玩家包三家	点炮:供了第4个开门的玩家包三家
+     * 3: 赢家3个开门,且没有同一玩家至少供3个开门			自摸:与普通自摸一样结算			点炮:由点炮的玩家包三家
+     * 4: 赢家3个以下开门								自摸:与普通自摸一样结算			点炮:与普通点炮一样结算
      * @param groupList
      * @param pd
      * @param fromPlayerId  输家id
      * @return
      */
     private int getFromPlayerId(ArrayList<CardGroup> groupList, PayDetailed pd, int fromPlayerId,boolean isZiMo) {
-        //收集供吃碰玩家点开门的次数
+        ArrayList<CardGroup> noCealedKongGroup = new ArrayList<>();
+        //0:收集供吃碰玩家点开门的次数，排除暗杠的开门次数
         Map<Integer, Integer> targetId = new HashMap<>();
         for (CardGroup cg : groupList) {
-            if (cg.getGType() == YNMJGameType.PlayType.CealedKong)
+            if (cg.getGType() == YNMJGameType.PlayType.CealedKong )
                 continue;                                           //如果当前开门牌为暗杠不计算当前牌组
-            if (!targetId.containsKey(cg.targetId))
+            if (!targetId.containsKey(cg.targetId)) {
                 targetId.put(cg.targetId, 1);
-            else
+            }
+            else {
                 targetId.put(cg.targetId, (targetId.get(cg.targetId) + 1));
+            }
+            noCealedKongGroup.add(cg);
         }
 
-        //1:当groupList.size()>=3中包含同一玩家供的三吃碰,点炮自摸都由供3吃碰的玩家包三家
-        if (groupList.size() >= 3) {
+        //1:赢家至少3个开门,且有同一玩家至少供3个开门 		自摸:供了3个开门的玩家包三家	点炮:供了3个开门的玩家包三家
+        if (noCealedKongGroup.size() >= 3) {
             //判断每个点开门的玩家点了几次，如果有3次以上的玩家则胡了包三家
             for(Integer tid:targetId.keySet()){
                 //判断是否有一人点了3个开门
@@ -711,18 +717,18 @@ public abstract class YXHuPlugin extends HuPlugin {
             }
         }
 
-        //2:当groupList.size()==4中,第4个吃碰由A玩家供的，点炮自摸都由A玩家包三家
-        if (groupList.size() == 4) {
+        //2:赢家4个开门,且没有同一玩家至少供3个开门			自摸:供第2个开门的玩家包三家	点炮:供了第4个开门的玩家包三家
+        if (noCealedKongGroup.size() == 4) {
             fromPlayerId = groupList.get(3).targetId;
             return fromPlayerId;
         }
 
-        //3:当groupList.size()==3,3吃碰不为同一家，点炮由fromPlayerId包三家，自摸则正常胡
-        if (groupList.size() == 3 && !isZiMo) {
+        //3:赢家3个开门,且没有同一玩家至少供3个开门			自摸:与普通自摸一样结算			点炮:由点炮的玩家包三家
+        if (noCealedKongGroup.size() == 3 && !isZiMo) {
             return pd.getFromUid()[0];
         }
 
-        //4:不符合以上几种情况，返回0
+        //4:赢家3个以下开门								自摸:与普通自摸一样结算			点炮:与普通点炮一样结算
         return 0;
 
 //        if(groupList.size()>=3){
@@ -752,7 +758,12 @@ public abstract class YXHuPlugin extends HuPlugin {
 //        return fromPlayerId;
     }
 
-
+    /**
+     * 抢杠包三家标记
+     * @param pd    支付细节
+     * @param room  房间对象
+     * @return      返回当前是否为抢杠包三家状态
+     */
     protected boolean isQiangGangChargeAll(PayDetailed pd, RoomInstance room) {
         //所有玩家
         ArrayList<IPlayer> allPlayer = room.getAllPlayer();
@@ -761,8 +772,10 @@ public abstract class YXHuPlugin extends HuPlugin {
         // 返回包三家状态，包三家积分
         for (IPlayer ip : allPlayer) {
             MJPlayer mjp = (MJPlayer) ip;
-            return mjp.isQiangGangPingHuFlag();
-//            if(mjp.isQiangGangPingHuFlag()){
+            if(mjp.isQiangGangFlag())
+                return true;
+
+//            if(mjp.isQiangGangFlag()){
 //                pd.getFromUid()[0] = mjp.getUid();
 //            }
         }

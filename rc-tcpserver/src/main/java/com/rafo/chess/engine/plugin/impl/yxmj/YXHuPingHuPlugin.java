@@ -8,12 +8,8 @@ import com.rafo.chess.engine.majiang.MJPlayer;
 import com.rafo.chess.engine.room.RoomAttributeConstants;
 import com.rafo.chess.engine.room.RoomInstance;
 import com.rafo.chess.engine.room.RoomManager;
-import com.smartfoxserver.v2.entities.Room;
-import org.apache.commons.lang.ArrayUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 
 /***
  * 屁和，如果吃牌了，就不能屁和，只能和清一色
@@ -37,7 +33,7 @@ public class YXHuPingHuPlugin extends YXHuPlugin {
 			}
 			//抢杠胡判断的是别人
 			else {
-				if (((MJPlayer) p).isQiangGangPingHuFlag()) {
+				if (((MJPlayer) p).isQiangGangFlag()) {
 					if (huCondition(handCards, groupList)) {
 						//增加附加得分条件
 						addAttach(player, handCards, groupList);
