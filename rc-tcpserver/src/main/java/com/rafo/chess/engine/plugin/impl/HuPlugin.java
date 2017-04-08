@@ -370,7 +370,17 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
 
         for (MJCard mjc : lLong)
             remainCards = ArrayUtils.add(remainCards, mjc.getCardNum());
-        boolean huflag = isHu(remainCards,lastCard);
+        //5.1将最后要胡的牌，移动到数组最后
+//        for(int i=0;i<remainCards.length;i++){
+//            if(remainCards[i]==lastCard) {
+//                int[] temp = ArrayUtils.remove(remainCards,lastCard);
+//                ArrayUtils.add(temp,lastCard);
+//                remainCards = temp ;
+//                break;
+//            }
+//        }
+
+        boolean huflag = isHu(remainCards);
         if (!huflag)
             return false;
         else if (huflag && this.isjia)
@@ -479,17 +489,17 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
      * @param cardsTemp
      * @return
      */
-    public boolean isHu(int[] cardsTemp) {
-        return isHu(cardsTemp,cardsTemp[cardsTemp.length-1]);
-    }
+//    public boolean isHu(int[] cardsTemp) {
+//        return isHu(cardsTemp,cardsTemp[cardsTemp.length-1]);
+//    }
 
     /**
      * 判定当前牌型是否符合3N+2可以胡的牌型，同时制定最后胡的一张牌的值
      * @param cardsTemp 要判定的牌数组
-     * @param lastcard  最后要胡的一张牌
      * @return          返回是否胡
      */
-    public boolean isHu(int[] cardsTemp,int lastcard) {
+//    public boolean isHu(int[] cardsTemp,int lastcard) {
+    public boolean isHu(int[] cardsTemp) {
         boolean res = false;
         if (cardsTemp == null || cardsTemp.length == 0) {
             return res;
@@ -501,7 +511,7 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
 
         boolean ishu = false;                                               //是否可以和
 
-//        lastcard = cardsTemp[cardsTemp.length - 1];                        //最后一张
+        lastcard = cardsTemp[cardsTemp.length - 1];                        //最后一张
         HashMap<Integer, Integer> map = arrayHandsCardCount(cardsTemp);
         for (Integer cNum : map.keySet()) {
             mid = false;
@@ -548,7 +558,7 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
                         temp = arrayRemove(handCards, cardTemp + i, 1);
                         if (temp == null) return false;
 
-                        //增加对加、边的判断，但不影响原来的和牌判断
+                        //增加对夹、边的判断，但不影响原来的和牌判断
                         if (i == 1 && cardTemp + i == lastcard)
                             mid = true;
                         handCards = temp;
@@ -560,7 +570,7 @@ public abstract class HuPlugin extends AbstractPlayerPlugin<HuAction>
                                 side = true;
                     }
 
-                    //增加单调判断，不影响原来和平判断
+                    //增加单调判断，不影响原来平和判断
                     if (cardTemp % 10 > 1 && cardTemp % 10 < 7) {
                         if (lastcard == cardTemp - 1 || lastcard == cardTemp + 3
                                 || singlecard != lastcard)

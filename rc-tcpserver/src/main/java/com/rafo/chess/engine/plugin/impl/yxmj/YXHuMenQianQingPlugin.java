@@ -17,7 +17,7 @@ public class YXHuMenQianQingPlugin extends YXHuPlugin {
     @Override
     public boolean checkHu(MJPlayer player, ArrayList<MJCard> handCards, ArrayList<CardGroup> groupList) {
         //测试代码
-        if( handCards.get(handCards.size()-1).getCardNum()==13)
+        if( handCards.get(handCards.size()-1).getCardNum()==28)
             System.out.println("aaa");
         //测试代码
 
@@ -39,6 +39,7 @@ public class YXHuMenQianQingPlugin extends YXHuPlugin {
                 return false;
         }
 
+//        int[] cards = this.arraySort(this.list2intArray(handCards));
         int[] cards = this.list2intArray(handCards);
         boolean flag = this.isHu(cards) && this.isjia;
         //如果flag为true附加其他加分项
